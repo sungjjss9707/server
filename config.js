@@ -2,10 +2,11 @@ var mysql = require('mysql2/promise');
 
 var inform = {
     host : "localhost",
-    user : "root",
+    user : "sjh",
     password : "password",
     port : 3306,
-    database : "SERVER_DB"
+    database : "SERVER_DB",
+    dateStrings: 'date'
 };
 
 exports.secret = 'sjh_secret';

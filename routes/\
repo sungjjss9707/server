@@ -10,7 +10,7 @@ var inform = mysql.inform;
 router.post('/', async function(req, res, next) {
     console.log("REISTER-PAGE");
 
-	async function insertQuery(my_sql, my_param){
+	async function insertSql(my_sql, my_param){
         try{
 			//console.log(my_sql);
 			//console.log(my_param);
@@ -42,9 +42,9 @@ router.post('/', async function(req, res, next) {
 	//console.log(my_password+" "+my_encoded_password);
 	var insert_sql = "insert into user values (?,?,?,?,?,?,?,?,?,?,now(), now());";
 	var insert_param = [encoded_id, name, email, encoded_pw, phoneNumber, serviceNumber, mil_rank, enlistmentDate, dischargeDate, militaryUnit];
-	var insert_success = await insertQuery(insert_sql, insert_param);
+	var insert_success = await insertSql(insert_sql, insert_param);
 	if(insert_success){
-		var select_sql = "select createdAt, updatedAt from user where id = ?;";
+		var select_sql = "select * from user where id = ?;";
 		var select_param = encoded_id;
 		const [row, field] = await con.query(select_sql,select_param);
 		if(row.length!=0){
@@ -55,7 +55,7 @@ router.post('/', async function(req, res, next) {
 			res.send({status:200, message:"Ok", data:data});
 		}
 		else{
-			res.send({status:400, message:"Bad Request"});
+			else res.send({status:400, message:"Bad Request"});
 		}
 
 	}
