@@ -6,9 +6,9 @@ var new_issue = require('../routes/issue');
 var router = express.Router(); 
 var con;
 var db = require('mysql2/promise');
-var mysql = require('../config')
-var inform = mysql.inform;
-
+var inform = config.inform;
+var refresh_time = config.refresh_time;
+var access_time = config.access_time;
 router.post('/', async function(req, res, next) {
 	
 	async function insertQuery(my_sql, my_param){
@@ -70,8 +70,8 @@ router.post('/', async function(req, res, next) {
 
 			}
 			//console.log("내이름 : "+my_name);
-			var access_token_obj = await new_issue.issue_new_token(email, name, '15m');
-			var refresh_token_obj = await new_issue.issue_new_token(email, name, '1d');
+			var access_token_obj = await new_issue.issue_new_token(email, name, access_time);
+			var refresh_token_obj = await new_issue.issue_new_token(email, name, refresh_time);
 			var access_token = access_token_obj.Token;
 			var refresh_token = refresh_token_obj.Token;
 			//console.log("액세스토큰 : "+access_token);

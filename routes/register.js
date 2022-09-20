@@ -25,6 +25,9 @@ router.post('/', async function(req, res, next) {
     }
 	//console.log(inform);
 	con = await db.createConnection(inform);
+	//con.connect(err => {
+	 // if (err) throw new Error(err);
+	//});
 	const name = req.body.name;
 	const email = req.body.email;
 	const password = req.body.password;
