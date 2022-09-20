@@ -8,7 +8,7 @@ var crypto = require('crypto');
 var inform = mysql.inform;
 
 
-async function myQuery(sql, param){
+async function Query(sql, param){
     try{
         const [row, field] = await con.query(sql,param);
         return true;
@@ -42,14 +42,14 @@ router.post('/', async function(req, res, next) {
 	//console.log(my_password+" "+my_encoded_password);
 	var insert_sql = "insert into user values (?,?,?,?,?,?,?,?,?,?,now(), now());";
 	var insert_param = [encoded_id, name, email, encoded_pw, phoneNumber, serviceNumber, mil_rank, enlistmentDate, dischargeDate, militaryUnit];
-	var insert_success = await myQuery(insert_sql, insert_param);
+	var insert_success = await Query(insert_sql, insert_param);
 	if(insert_success){
 		var select_sql = "select createdAt, updatedAt from user where id = ?;";
 		var select_param = encoded_id;
-		const [select_result, select_field] = await con.query(select_sql,select_param);
-		if(select_result.length!=0){
-			var created_time = select_result[0].createdAt;
-			var updated_time = select_result[0].updatedAt;
+		const [row, field] = await con.query(select_sql,select_param);
+		if(row.length!=0){
+			var created_time = row[0].createdAt;
+			var updated_time = row[0].updatedAt;
 			//console.log(created_time+" "+updated_time);
 			var data = {id : encoded_id, name : name, email : email, password : password, phoneNumber:phoneNumber, serviceNumber:serviceNumber, rank:mil_rank, enlistmentDate:enlistmentDate, dischargeDate : dischargeDate, militaryUnit : militaryUnit, createdAt:created_time, updatedAt : updated_time};
 			res.send({status:200, message:"Ok", data:data});
