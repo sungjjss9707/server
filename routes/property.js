@@ -61,7 +61,7 @@ router.post('/register', async function(req, res, next) {
 	else{
 		var origin_amount = select_result1[0].amount;
 		var final_amount = origin_amount+amount;
-		var update_sql = "update property set amount = ?, updateAt = now() where id = ?;";
+		var update_sql = "update property set amount = ?, updatedAt = now() where id = ?;";
 		var update_param = [final_amount, encoded_id];
 		var update_success = await myQuery(update_sql, update_param);
 		if(update_success){
@@ -83,5 +83,37 @@ router.post('/register', async function(req, res, next) {
 		}
 	}
 });
+
+
+
+
+
+
+router.get('/show/:id', async function(req, res, next) {
+    console.log("show-PAGE");
+	const id = req.params.id;
+	con = await db.createConnection(inform);
+    var select_sql = "select * from property where id = ?;";
+    var select_param = id;
+    const [select_result1, field1] = await con.query(select_sql,select_param);
+    if(select_result1.length==0){
+        res.send({status:400, message:"Bad Request"});
+    }
+    else{
+		console.log(select_result1);
+		var name = select_result1[0].name;
+		var amount = select_result1[0].amount;
+		var unit = select_result1[0].unit;
+		var storagePlace = select_result1[0].storagePlace;
+		var expirationDate = select_result1[0].expirationDate;
+        var created_time = select_result1[0].createdAt;
+        var updated_time = select_result1[0].updatedAt;
+		console.log(created_time+" "+updated_time);
+        var data = {id :id, name : name, amount:amount, unit:unit, storagePlace:storagePlace, expirationDate:expirationDate, createdAt:created_time, updatedAt : updated_time};
+        res.send({status:200, message:"Ok", data:data});
+    }
+});
+
+
 
 module.exports = router;
