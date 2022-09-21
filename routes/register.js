@@ -50,8 +50,9 @@ router.post('/', async function(req, res, next) {
 		if(select_result.length!=0){
 			var created_time = select_result[0].createdAt;
 			var updated_time = select_result[0].updatedAt;
+			var data = {id : encoded_id, name : name, email : email, phoneNumber:phoneNumber, serviceNumber:serviceNumber, rank:mil_rank, enlistmentDate:enlistmentDate, dischargeDate : dischargeDate, militaryUnit : militaryUnit, createdAt:created_time, updatedAt : updated_time};
 			//console.log(created_time+" "+updated_time);
-			var data = {id : encoded_id, name : name, email : email, password : password, phoneNumber:phoneNumber, serviceNumber:serviceNumber, rank:mil_rank, enlistmentDate:enlistmentDate, dischargeDate : dischargeDate, militaryUnit : militaryUnit, createdAt:created_time, updatedAt : updated_time};
+			//var data = {id : encoded_id, name : name, email : email, password : password, phoneNumber:phoneNumber, serviceNumber:serviceNumber, rank:mil_rank, enlistmentDate:enlistmentDate, dischargeDate : dischargeDate, militaryUnit : militaryUnit, createdAt:created_time, updatedAt : updated_time};
 			res.send({status:200, message:"Ok", data:data});
 		}
 		else{

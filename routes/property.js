@@ -6,7 +6,7 @@ var db = require('mysql2/promise');
 var mysql = require('../config');
 var crypto = require('crypto');
 var inform = mysql.inform;
-
+var verify = require('../routes/verify');
 
 async function myQuery(sql, param){
     try{
@@ -19,101 +19,108 @@ async function myQuery(sql, param){
 }
 
 
-router.post('/register', async function(req, res, next) {
-    console.log("REISTER-PAGE");
-	con = await db.createConnection(inform);
-	//con.connect(err => {
-	 // if (err) throw new Error(err);
-	//});
-	const name = req.body.name;
-	const amount = req.body.amount;
-	const unit = req.body.unit;
-	const storagePlace = req.body.storagePlace;
-	const expirationDate = req.body.expirationDate;
-	//var myhash = crypto.createHash('sha1');
-	//var encoded_id = crypto.createHash('sha256').update(name+" "+expirationDate).digest('base64');
-	var encoded_id = name+" "+expirationDate;
-	var select_sql = "select * from property where id = ?;";
-    var select_param = encoded_id;
-    const [select_result1, field1] = await con.query(select_sql,select_param);
-	if(select_result1.length==0){
-		var insert_sql = "insert into property values (?,?,?,?,?,?,now(), now());";
-    	var insert_param = [encoded_id, name, amount, unit, storagePlace, expirationDate];
-    	var insert_success = await myQuery(insert_sql, insert_param);
-    	if(insert_success){
-        	const [select_result2, field2] = await con.query(select_sql,select_param);
-        	if(select_result2.length!=0){
-            	var created_time = select_result2[0].createdAt;
-            	var updated_time = select_result2[0].updatedAt;
-            //console.log(created_time+" "+updated_time);
-            	var data = {id : encoded_id, name : name, amount:amount, unit:unit, storagePlace:storagePlace, expirationDate:expirationDate, createdAt:created_time, updatedAt : updated_time};
-				////////////////////////////////////////////////////////////////여기에 수불로그도 업데이트 해줘야함
-            	res.send({status:200, message:"Ok", data:data});
-        	}
-        	else{
-            	res.send({status:400, message:"Bad Request"});
-        	}
-
-    	}
-     //res.send("가입 완료");
-    	else res.send({status:400, message:"Bad Request"});
-	}
-	else{
-		var origin_amount = select_result1[0].amount;
-		var final_amount = origin_amount+amount;
-		var update_sql = "update property set amount = ?, updatedAt = now() where id = ?;";
-		var update_param = [final_amount, encoded_id];
-		var update_success = await myQuery(update_sql, update_param);
-		if(update_success){
-			const [select_result2, field2] = await con.query(select_sql,select_param);
-            if(select_result2.length!=0){
-                var created_time = select_result2[0].createdAt;
-                var updated_time = select_result2[0].updatedAt;
-            //console.log(created_time+" "+updated_time);
-                var data = {id : encoded_id, name : name, amount:final_amount, unit:unit, storagePlace:storagePlace, expirationDate:expirationDate, createdAt:created_time, updatedAt : updated_time};
-				//////////////////////////////////////////////////////////////////////여기도 마찬가지로 수불로그 업데이트 
-                res.send({status:200, message:"Ok", data:data});
+router.get('/show', async function(req, res, next) {
+    console.log("show-PAGE");
+/*
+	const user_id = req.body.id;
+    const accessToken = req.header('Authorization');
+    if (accessToken == null) {
+        res.send({status:400, message:'Bad Request', data:null});
+        return;
+    }
+    var verify_success = await verify.verifyFunction(accessToken, user_id);
+    if(!verify_success){
+        res.send({status:400, message:'Bad Request', data:null});
+        return;
+    }
+*/
+    con = await db.createConnection(inform);
+    var select_property_sql = "select * from property;";
+    const [select_property_result, select_property_field1] = await con.query(select_property_sql);
+    if(select_property_result.length==0){
+        res.send({status:400, message:"Bad Request"});
+    }
+    else{
+		var data = [];
+		var log_arr = [];
+		var Individual_data;
+		var select_log_result, select_log_field;
+		var id, name, amount, unit, storagePlace, expirationDate, created_time, updated_time, select_log_sql, select_log_param;
+		for(let i=0; i<select_property_result.length; ++i){
+			id = select_property_result[i].id;
+			name = select_property_result[i].name;
+        	amount = select_property_result[i].amount;
+        	unit = select_property_result[i].unit;
+        	storagePlace = select_property_result[i].storagePlace;
+        	expirationDate = select_property_result[i].expirationDate;
+        	created_time = select_property_result[i].createdAt;
+        	updated_time = select_property_result[i].updatedAt;
+        	select_log_sql = "select id from payment_log where property_id = ?;";
+        	select_log_param = id;
+			[select_log_result, select_log_field] = await con.query(select_log_sql,select_log_param);
+			log_arr = [];
+			for(let k=0; k<select_log_result.length; ++k){
+                log_arr.push(select_log_result[k].id);
             }
-            else{
-                res.send({status:400, message:"Bad Request"});
-            }
+			individual_data = {id :id, name : name, amount:amount, unit:unit, storagePlace:storagePlace,expirationDate:expirationDate,logRecord:log_arr ,createdAt:created_time, updatedAt : updated_time};
+			data.push(individual_data);
 		}
-		else{
-			res.send({status:400, message:"Bad Request"});
-		}
-	}
+		res.send({status:200, message:"Ok", data:data});
+    }
 });
-
-
-
-
 
 
 router.get('/show/:id', async function(req, res, next) {
     console.log("show-PAGE");
-	const id = req.params.id;
-	con = await db.createConnection(inform);
-    var select_sql = "select * from property where id = ?;";
-    var select_param = id;
-    const [select_result1, field1] = await con.query(select_sql,select_param);
-    if(select_result1.length==0){
+    const id = req.params.id;
+
+/*
+    const user_id = req.body.id;
+    const accessToken = req.header('Authorization');
+    if (accessToken == null) {
+        res.send({status:400, message:'Bad Request', data:null});
+        return;
+    }
+    var verify_success = await verify.verifyFunction(accessToken, user_id);
+    if(!verify_success){
+        res.send({status:400, message:'Bad Request', data:null});
+        return;
+    }
+*/
+
+    con = await db.createConnection(inform);
+    var select_property_sql = "select * from property where id = ?;";
+    var select_property_param = id;
+    const [select_property_result, select_property_field1] = await con.query(select_property_sql,select_property_param);
+    if(select_property_result.length==0){
         res.send({status:400, message:"Bad Request"});
     }
     else{
-		console.log(select_result1);
-		var name = select_result1[0].name;
-		var amount = select_result1[0].amount;
-		var unit = select_result1[0].unit;
-		var storagePlace = select_result1[0].storagePlace;
-		var expirationDate = select_result1[0].expirationDate;
-        var created_time = select_result1[0].createdAt;
-        var updated_time = select_result1[0].updatedAt;
-		console.log(created_time+" "+updated_time);
-        var data = {id :id, name : name, amount:amount, unit:unit, storagePlace:storagePlace, expirationDate:expirationDate, createdAt:created_time, updatedAt : updated_time};
-        res.send({status:200, message:"Ok", data:data});
+        //console.log(select_result1);
+        var name = select_property_result[0].name;
+        var amount = select_property_result[0].amount;
+        var unit = select_property_result[0].unit;
+        var storagePlace = select_property_result[0].storagePlace;
+        var expirationDate = select_property_result[0].expirationDate;
+        var created_time = select_property_result[0].createdAt;
+        var updated_time = select_property_result[0].updatedAt;
+		var select_log_sql = "select id from payment_log where property_id = ?;";
+    	var select_log_param = id;
+    	const [select_log_result, select_log_field] = await con.query(select_log_sql,select_log_param);
+        //console.log(created_time+" "+updated_time);
+		if(select_log_result.length==0){	//재산이 있다면 로그가 없을수가 없음 절대로 
+        	res.send({status:400, message:"Bad Request"});
+    	}
+		else{
+			var log_arr = [];
+			//console.log(select_log_result);
+			for(let i=0; i<select_log_result.length; ++i){
+				log_arr.push(select_log_result[i].id);
+			}			
+			var data = {id :id, name : name, amount:amount, unit:unit, storagePlace:storagePlace,expirationDate:expirationDate,logRecord:log_arr ,createdAt:created_time, updatedAt : updated_time};
+        	res.send({status:200, message:"Ok", data:data});	
+		}
     }
 });
-
-
 
 module.exports = router;

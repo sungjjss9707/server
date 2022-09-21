@@ -22,11 +22,19 @@ async function myQuery(sql, param){
 
 router.post('/write', async function(req, res, next) {
 	con = await db.createConnection(inform);
-	const accessToken = req.header('Authorization');
-	if (accessToken == null) {
+	const confirmor_id = req.body.confirmor_id;
+/*
+    const accessToken = req.header('Authorization');
+    if (accessToken == null) {
         res.send({status:400, message:'Bad Request', data:null});
-		return;
+        return;
     }
+    var verify_success = await verify.verifyFunction(accessToken, confirmor_id);
+    if(!verify_success){
+        res.send({status:400, message:'Bad Request', data:null});
+        return;
+    }
+*/
 	const receiptPayment = req.body.receiptPayment;
 	const name = req.body.name;
 	const amount = req.body.amount;
@@ -34,13 +42,6 @@ router.post('/write', async function(req, res, next) {
 	const target = req.body.target;
 	const storagePlace = req.body.storagePlace;
 	const expirationDate = req.body.expirationDate;
-	const confirmor_id = req.body.confirmor_id;
-    var verify_success = await verify.verifyFunction(accessToken, confirmor_id);
-    console.log(verify_success);
-    if(!verify_success){
-        res.send({status:400, message:'Bad Request', data:null});
-        return;
-    }
 	//var myhash = crypto.createHash('sha1');
 	//var encoded_id = crypto.createHash('sha256').update(name+" "+expirationDate).digest('base64');
 	var property_id = name+"-"+expirationDate;
