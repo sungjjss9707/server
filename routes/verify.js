@@ -44,11 +44,6 @@ async function Query(sql, param){
 }
 
 var verifyFunction = async function(accessToken, id) {
-	try{
-
-	} catch(error){
-
-	};
     //const accessToken = req.body.token; 
 	if (accessToken == null) {
 		return false;
@@ -106,7 +101,7 @@ var verifyFunction = async function(accessToken, id) {
 		//console.log(refresh.message);
 		if(access.success){
 			if(refresh.success){	//인증 성공 
-				//console.log("인증성공");
+				console.log("인증성공");
 				return true;
 			}
 			else if(refresh.message=="jwt expired"){	//리프래쉬 다시 발급
@@ -131,12 +126,13 @@ var verifyFunction = async function(accessToken, id) {
 			if(refresh.success){	//엑세스 다시발급 
 				var new_access_token_obj = await new_issue.issue_new_token(email, name, access_time);
                 var new_access_token = new_access_token_obj.Token;
+				console.log("엑세스 다시 발급");
 				return true;
 			}
 			else if(refresh.message=="jwt expired"){	//로그아웃
 				return false;
 				//var delete_refresh = await del_ref.del_query(mil_num);
-				//console.log("로그이읏");
+				console.log("로그이읏");
                 //res.send("로그아웃");
 			}
  			else{return false;}
