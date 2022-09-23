@@ -7,6 +7,7 @@ var mysql = require('../config');
 var crypto = require('crypto');
 var inform = mysql.inform;
 var verify = require('../routes/verify');
+var table = require('../routes/table');
 
 async function myQuery(sql, param){
     try{
@@ -21,9 +22,10 @@ async function myQuery(sql, param){
 
 router.get('/show', async function(req, res, next) {
     console.log("show-PAGE");
-/*
+
 	const user_id = req.body.id;
-    const accessToken = req.header('Authorization');
+/*   
+	 const accessToken = req.header('Authorization');
     if (accessToken == null) {
         res.send({status:400, message:'Bad Request', data:null});
         return;
@@ -35,7 +37,15 @@ router.get('/show', async function(req, res, next) {
     }
 */
     con = await db.createConnection(inform);
-    var select_property_sql = "select * from property;";
+	const check_militaryUnit = "select militaryUnit from user where id = ?;";
+    const check_militaryUnit_param = user_id;
+    const [check_militaryUnit_result] = await con.query(check_militaryUnit, check_militaryUnit_param);
+    if(check_militaryUnit_result.length==0){
+        res.send({status:400, message:'Bad Request', data:null});
+        return;
+    }
+    var militaryUnit = check_militaryUnit_result[0].militaryUnit;
+    var select_property_sql = "select * from property_"+militaryUnit+";";
     const [select_property_result, select_property_field1] = await con.query(select_property_sql);
     if(select_property_result.length==0){
         res.send({status:400, message:"Bad Request"});
@@ -55,7 +65,7 @@ router.get('/show', async function(req, res, next) {
         	expirationDate = select_property_result[i].expirationDate;
         	created_time = select_property_result[i].createdAt;
         	updated_time = select_property_result[i].updatedAt;
-        	select_log_sql = "select id from payment_log where property_id = ?;";
+        	select_log_sql = "select id from payment_log_"+militaryUnit+" where property_id = ?;";
         	select_log_param = id;
 			[select_log_result, select_log_field] = await con.query(select_log_sql,select_log_param);
 			log_arr = [];
@@ -74,9 +84,9 @@ router.get('/show/:id', async function(req, res, next) {
     console.log("show-PAGE");
     const id = req.params.id;
 
-/*
     const user_id = req.body.id;
-    const accessToken = req.header('Authorization');
+/*    
+	const accessToken = req.header('Authorization');
     if (accessToken == null) {
         res.send({status:400, message:'Bad Request', data:null});
         return;
@@ -89,7 +99,15 @@ router.get('/show/:id', async function(req, res, next) {
 */
 
     con = await db.createConnection(inform);
-    var select_property_sql = "select * from property where id = ?;";
+	const check_militaryUnit = "select militaryUnit from user where id = ?;";
+    const check_militaryUnit_param = user_id;
+    const [check_militaryUnit_result] = await con.query(check_militaryUnit, check_militaryUnit_param);
+    if(check_militaryUnit_result.length==0){
+        res.send({status:400, message:'Bad Request', data:null});
+        return;
+    }
+    var militaryUnit = check_militaryUnit_result[0].militaryUnit;
+    var select_property_sql = "select * from property_"+militaryUnit+" where id = ?;";
     var select_property_param = id;
     const [select_property_result, select_property_field1] = await con.query(select_property_sql,select_property_param);
     if(select_property_result.length==0){
@@ -104,7 +122,7 @@ router.get('/show/:id', async function(req, res, next) {
         var expirationDate = select_property_result[0].expirationDate;
         var created_time = select_property_result[0].createdAt;
         var updated_time = select_property_result[0].updatedAt;
-		var select_log_sql = "select id from payment_log where property_id = ?;";
+		var select_log_sql = "select id from payment_log_"+militaryUnit+" where property_id = ?;";
     	var select_log_param = id;
     	const [select_log_result, select_log_field] = await con.query(select_log_sql,select_log_param);
         //console.log(created_time+" "+updated_time);
