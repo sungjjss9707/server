@@ -30,7 +30,8 @@ router.post('/', async function(req, res, next) {
 	}
 	var property_make_success = await table.makeProperty(militaryUnit);
 	var log_make_success = await table.makeLog(militaryUnit);
-	if(property_make_success.success&&log_make_success.success){
+	var storagePlace_make_success = await table.makeStoragePlace(militaryUnit);
+	if(property_make_success.success&&log_make_success.success&&storagePlace_make_success){
 		res.send("success");
 	} 
 	else res.send({status:400, message:"Bad Request"});

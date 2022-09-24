@@ -8,9 +8,8 @@ var inform = mysql.inform;
 var makeProperty = async function(militaryUnit){
     try{
 		var con = await db.createConnection(inform);
-		var sql = "create table property_"+militaryUnit+" ( id varchar(100), name varchar(100), amount int, unit varchar(20), storagePlace varchar(100), expirationDate datetime, createdAt datetime, updatedAt datetime, primary key(id) );";
-		var param = militaryUnit;
-        const [row, field] = await con.query(sql,param);
+		var sql = "create table property_"+militaryUnit+" ( id varchar(100), name varchar(100), totalAmount int, unit varchar(20), expirationDate datetime, createdAt datetime, updatedAt datetime, primary key(id) );";
+        const [row, field] = await con.query(sql);
         return {success:true};
     }catch(error){
         console.log(error);
@@ -22,8 +21,19 @@ var makeLog = async function(militaryUnit){
     try{
         var con = await db.createConnection(inform);
 		var sql = "create table payment_log_"+militaryUnit+"( id varchar(100), receiptPayment varchar(20), name varchar(100), amount int,  unit varchar(20), target varchar(100), storagePlace varchar(100), expirationDate varchar(100), confirmor_id varchar(100), property_id varchar(100), property_log_num int, createdAt datetime, updatedAt datetime, primary key(id) );"
-        var param = militaryUnit;
-        const [row, field] = await con.query(sql,param);
+        const [row, field] = await con.query(sql);
+        return {success:true};
+    }catch(error){
+        console.log(error);
+        return {success:false, error:error};
+    }
+}
+
+var makeStoragePlace = async function(militaryUnit){
+    try{
+        var con = await db.createConnection(inform);
+        var sql = "create table storage_place_"+militaryUnit+"( id varchar(150), property_id varchar(100), name varchar(100), amount int, primary key(id) );"
+        const [row, field] = await con.query(sql);
         return {success:true};
     }catch(error){
         console.log(error);
@@ -33,3 +43,4 @@ var makeLog = async function(militaryUnit){
 
 exports.makeProperty = makeProperty;
 exports.makeLog = makeLog;
+exports.makeStoragePlace = makeStoragePlace;
