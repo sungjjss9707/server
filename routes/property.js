@@ -68,7 +68,7 @@ router.get('/show', async function(req, res, next) {
         	expirationDate = select_property_result[i].expirationDate;
         	created_time = select_property_result[i].createdAt;
         	updated_time = select_property_result[i].updatedAt;
-			select_amountByPlace_sql = "select name, amount from storage_place_"+militaryUnit+" where property_id = ?;";
+			select_amountByPlace_sql = "select name, amount from storagePlace_"+militaryUnit+" where property_id = ?;";
         	select_amountByPlace_param = id;
         	[select_amountByPlace_result] = await con.query(select_amountByPlace_sql, select_amountByPlace_param);
 			amountByPlace = [];
@@ -76,7 +76,7 @@ router.get('/show', async function(req, res, next) {
          	   amountByPlace.push({storagePlace:select_amountByPlace_result[k].name, amount:select_amountByPlace_result[k].amount});
         	}
 
-        	select_log_sql = "select id from payment_log_"+militaryUnit+" where property_id = ? order by property_log_num;";
+        	select_log_sql = "select id from paymentLog_"+militaryUnit+" where property_id = ? order by property_log_num;";
         	select_log_param = id;
 			[select_log_result, select_log_field] = await con.query(select_log_sql,select_log_param);
 			log_arr = [];
@@ -133,7 +133,7 @@ router.get('/show/:id', async function(req, res, next) {
         var created_time = select_property_result[0].createdAt;
         var updated_time = select_property_result[0].updatedAt;
 		var amountByPlace = [];
-		var select_amountByPlace_sql = "select name, amount from storage_place_"+militaryUnit+" where property_id = ?;";
+		var select_amountByPlace_sql = "select name, amount from storagePlace_"+militaryUnit+" where property_id = ?;";
 		var select_amountByPlace_param = id;
 		const[select_amountByPlace_result] = await con.query(select_amountByPlace_sql, select_amountByPlace_param);
 		if(select_amountByPlace_result.length==0){
@@ -143,7 +143,7 @@ router.get('/show/:id', async function(req, res, next) {
 		for(let i=0; i<select_amountByPlace_result.length; ++i){
 			amountByPlace.push({storagePlace:select_amountByPlace_result[i].name, amount:select_amountByPlace_result[i].amount});
 		}
-		var select_log_sql = "select id from payment_log_"+militaryUnit+" where property_id = ? order by property_log_num;";
+		var select_log_sql = "select id from paymentLog_"+militaryUnit+" where property_id = ? order by property_log_num;";
     	var select_log_param = id;
     	const [select_log_result, select_log_field] = await con.query(select_log_sql,select_log_param);
         //console.log(created_time+" "+updated_time);

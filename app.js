@@ -10,6 +10,8 @@ var checkbelongRouter = require('./routes/check_belong');
 var propertyRouter = require('./routes/property');
 var payment_logRouter = require('./routes/payment_log');
 var make_table_Router = require('./routes/make_table');
+var drop_table_Router = require('./routes/drop_table');
+var testRouter = require('./routes/test');
 //var indexRouter = require('./routes/index');
 //var usersRouter = require('./routes/users');
 //var verifyRouter = require('./routes/verify');
@@ -37,6 +39,8 @@ app.use('/checkbelong', checkbelongRouter);
 app.use('/property', propertyRouter);
 app.use('/paymentLog', payment_logRouter);
 app.use('/maketable', make_table_Router);
+app.use('/droptable', drop_table_Router);
+app.use('/test', testRouter);
 //app.use('/verify', verifyRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -19,188 +19,10 @@ async function myQuery(sql, param){
     }
 }
 
-/*
-router.put('/update', async function(req, res, next) {
-    con = await db.createConnection(inform);
-    const id = req.body.id;
-    const receiptPayment = req.body.receiptPayment;
-    const name = req.body.name;
-    const amount = req.body.amount;
-    const unit = req.body.unit;
-    const target = req.body.target;
-    const storagePlace = req.body.storagePlace;
-    const expirationDate = req.body.expirationDate;
-    const confirmor_id = req.body.confirmor_id;
-    var update_log_sql = "update payment_log set receiptPayment = ?, name = ?, amount = ?,unit = ?, target=?, storagePlace = ?, expirationDate = ?, updatedAt = now() where id = ?;";
-    var update_log_param = [final_amount, property_id];
-                query_success = await myQuery(update_property_sql, update_property_param);
-    const accessToken = req.header('Authorization');
-    if (accessToken == null) {
-        res.send({status:400, message:'Bad Request', data:null});
-        return;
-    }
-    var verify_success = await verify.verifyFunction(accessToken, confirmor_id);
-    if(!verify_success){
-        res.send({status:400, message:'Bad Request', data:null});
-        return;
-    }
-
-});
-*/
-
-
-router.get('/show', async function(req, res, next) {
-    con = await db.createConnection(inform);
-    const my_id = req.body.id;
-/*
-    const accessToken = req.header('Authorization');
-    if (accessToken == null) {
-        res.send({status:400, message:'Bad Request', data:null});
-        return;
-    }
-    var verify_success = await verify.verifyFunction(accessToken, my_id);
-    if(!verify_success){
-        res.send({status:400, message:'Bad Request', data:null});
-        return;
-    }
-*/
-    var id ;
-    var select_log_sql = "select * from payment_log;";
-    const [select_log_result, select_log_field] = await con.query(select_log_sql);
-    if(select_log_result.length==0){
-        res.send({status:400, message:"Bad Request"});
-    }
-    else{
-		var id, receiptPayment, name, amount, unit, target, storagePlace, expirationDate, createdAt, updatedAt, confirmor_id;
-		var select_user_sql = "select * from user where id = ?;";
-        var select_user_param, select_user_result, select_user_field;
-		var user_data,data=[] ,individual_log;
-		var user_name,email, phoneNumber, serviceNumber, rank, enlistmentDate, dischargeDate, militaryUnit , user_createdAt, user_updatedAt;
-		for(let i=0; i<select_log_result.length; ++i){
-			id = select_log_result[i].id;
-        	receiptPayment = select_log_result[i].receiptPayment;
-       	 	name = select_log_result[i].name;
-        	amount = select_log_result[i].amount;
-        	unit = select_log_result[i].unit;
-        	target = select_log_result[i].target;
-        	storagePlace = select_log_result[i].storagePlace;
-        	expirationDate = select_log_result[i].expirationDate;
-        	createdAt = select_log_result[i].createdAt;
-        	updatedAt = select_log_result[i].updatedAt;
-        	confirmor_id = select_log_result[i].confirmor_id;
-			select_user_param = confirmor_id;
-			[select_user_result, select_user_field] = await con.query(select_user_sql, select_user_param);
-			user_name = select_user_result[0].name;
-            email = select_user_result[0].email;
-            phoneNumber = select_user_result[0].phoneNumber;
-            serviceNumber = select_user_result[0].serviceNumber;
-            rank = select_user_result[0].mil_rank;
-            enlistmentDate = select_user_result[0].enlistmentDate;
-            dischargeDate = select_user_result[0].dischargeDate;
-            militaryUnit = select_user_result[0].militaryUnit;
-            user_createdAt = select_user_result[0].createdAt;
-            user_updatedAt = select_user_result[0].updatedAt;	
-			user_data = {id:confirmor_id, name:user_name, email:email, phoneNumber:phoneNumber, serviceNumber:serviceNumber, rank:rank, enlistmentDate:enlistmentDate, dischargeDate:dischargeDate,militaryUnit:militaryUnit, createdAt:user_createdAt, updatedAt:user_updatedAt };
-			individual_log = {id:id, receiptPayment:receiptPayment, name:name, amount:amount, unit:unit, target:target, storagePlace:storagePlace, expirationDate:expirationDate, confirmor:user_data, createdAt:createdAt, updatedAt:updatedAt};
-			data.push(individual_log);	
-		}
-		res.send({status:200, message:"Ok", data:data});
-    }
-});
-
-
-
-router.get('/show/:id', async function(req, res, next) {
-    con = await db.createConnection(inform);
-    const my_id = req.body.id;
-/*
-	const accessToken = req.header('Authorization');
-    if (accessToken == null) {
-        res.send({status:400, message:'Bad Request', data:null});
-        return;
-    }
-    var verify_success = await verify.verifyFunction(accessToken, my_id);
-    if(!verify_success){
-        res.send({status:400, message:'Bad Request', data:null});
-        return;
-    }
-*/
-	var id = req.params.id;
-	var select_log_sql = "select * from payment_log where id = ?;";
-	var select_log_param = id;
-	console.log(id);
-    const [select_log_result, select_log_field] = await con.query(select_log_sql, select_log_param);
-    if(select_log_result.length==0){
-        res.send({status:400, message:"Bad Request"});
-    }
-    else{
-		var receiptPayment = select_log_result[0].receiptPayment;
-		var name = select_log_result[0].name;
-		var amount = select_log_result[0].amount;
-		var unit = select_log_result[0].unit;
-		var target = select_log_result[0].target;
-		var storagePlace = select_log_result[0].storagePlace;
-		var expirationDate = select_log_result[0].expirationDate;
-		var createdAt = select_log_result[0].createdAt;
-		var updatedAt = select_log_result[0].updatedAt;
-		var confirmor_id = select_log_result[0].confirmor_id;
-		var select_user_sql = "select * from user where id = ?;";
-		var select_user_param = confirmor_id;
-		const [select_user_result, select_user_field] = await con.query(select_user_sql, select_user_param);
-		if(select_user_result.length==0){
-			res.send({status:400, message:"Bad Request"});
-		}
-		else{
-			var user_name = select_user_result[0].name;
-			var email = select_user_result[0].email;
-			var phoneNumber = select_user_result[0].phoneNumber;
-			var serviceNumber = select_user_result[0].serviceNumber;
-			var rank = select_user_result[0].mil_rank;
-			var enlistmentDate = select_user_result[0].enlistmentDate;
-			var dischargeDate = select_user_result[0].dischargeDate;
-			var militaryUnit = select_user_result[0].militaryUnit;
-			var user_createdAt = select_user_result[0].createdAt;
-			var user_updatedAt = select_user_result[0].updatedAt;
-			var user_data = {id:confirmor_id, name:user_name, email:email, phoneNumber:phoneNumber, serviceNumber:serviceNumber, rank:rank, enlistmentDate:enlistmentDate, dischargeDate:dischargeDate,militaryUnit:militaryUnit, createdAt:user_createdAt, updatedAt:user_updatedAt };
-			var data = {id:id, receiptPayment:receiptPayment, name:name, amount:amount, unit:unit, target:target, storagePlace:storagePlace, expirationDate:expirationDate, confirmor:user_data, createdAt:createdAt, updatedAt:updatedAt};
-			res.send({status:200, message:"Ok", data:data});
-		}
-	}
-});
-
-
-/*
-router.post('/update', async function(req, res, next) {
-    con = await db.createConnection(inform);
-	const id = req.body.id;
-	const receiptPayment = req.body.receiptPayment;
-    const name = req.body.name;
-    const amount = req.body.amount;
-    const unit = req.body.unit;
-    const target = req.body.target;
-    const storagePlace = req.body.storagePlace;
-    const expirationDate = req.body.expirationDate;
-	const confirmor_id = req.body.confirmor_id;
-	var update_log_sql = "update payment_log set receiptPayment = ?, name = ?, amount = ?,unit = ?, target=?, storagePlace = ?, expirationDate = ?, updatedAt = now() where id = ?;";
-    var update_log_param = [final_amount, property_id];
-                query_success = await myQuery(update_property_sql, update_property_param);
-    const accessToken = req.header('Authorization');
-    if (accessToken == null) {
-        res.send({status:400, message:'Bad Request', data:null});
-        return;
-    }
-    var verify_success = await verify.verifyFunction(accessToken, confirmor_id);
-    if(!verify_success){
-        res.send({status:400, message:'Bad Request', data:null});
-        return;
-    }
-
-});
-*/
 
 router.post('/write', async function(req, res, next) {
 	con = await db.createConnection(inform);
-	const confirmor_id = req.body.confirmor_id;
+	const confirmor_id = req.body.confirmor;
 /*
     const accessToken = req.header('Authorization');
     if (accessToken == null) {
@@ -214,12 +36,10 @@ router.post('/write', async function(req, res, next) {
     }
 */
 	const receiptPayment = req.body.receiptPayment;
-	const name = req.body.name;
-	const amount = req.body.amount;
-	const unit = req.body.unit;
 	const target = req.body.target;
-	const storagePlace = req.body.storagePlace;
-	const expirationDate = req.body.expirationDate;
+	const items = req.body.item;
+	console.log(items);
+/*
 	//var myhash = crypto.createHash('sha1');
 	//var encoded_id = crypto.createHash('sha256').update(name+" "+expirationDate).digest('base64');
 	var property_id = name+"-"+expirationDate;
@@ -368,6 +188,7 @@ router.post('/write', async function(req, res, next) {
 		//console.log(next_property_log_num);
 		//res.send("success");
 	}
+*/
 });
 
 

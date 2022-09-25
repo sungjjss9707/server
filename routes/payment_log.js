@@ -73,7 +73,7 @@ router.get('/show', async function(req, res, next) {
         return;
     }
     var militaryUnit = check_militaryUnit_result[0].militaryUnit;
-    var select_log_sql = "select * from payment_log_"+militaryUnit+" order by createdAt;";
+    var select_log_sql = "select * from paymentLog_"+militaryUnit+" order by createdAt;";
     const [select_log_result, select_log_field] = await con.query(select_log_sql);
     if(select_log_result.length==0){
         res.send({status:400, message:"Bad Request"});
@@ -142,7 +142,7 @@ router.get('/show/:id', async function(req, res, next) {
     }
 */
 	var id = req.params.id;
-	var select_log_sql = "select * from payment_log_"+militaryUnit+" where id = ?;";
+	var select_log_sql = "select * from paymentLog_"+militaryUnit+" where id = ?;";
 	var select_log_param = id;
 	console.log(id);
     const [select_log_result, select_log_field] = await con.query(select_log_sql, select_log_param);
@@ -249,7 +249,7 @@ router.post('/write', async function(req, res, next) {
 	//var encoded_id = crypto.createHash('sha256').update(name+" "+expirationDate).digest('base64');
 	var property_id = name+"-"+expirationDate;
 	//var log_id = property_Id+" "+
-	var select_sql = "select * from payment_log_"+militaryUnit+" where property_id = ?;";
+	var select_sql = "select * from paymentLog_"+militaryUnit+" where property_id = ?;";
     var select_param = property_id;
     const [select_result1, field1] = await con.query(select_sql,select_param);
 	if(select_result1.length==0){	//이 약의 수불로그가 하나도 없다는 뜻 => 지금 새로쓰는 수불로그는 무조건 처음 '받는'거여야함
@@ -258,7 +258,7 @@ router.post('/write', async function(req, res, next) {
         	var insert_property_param = [property_id, name, amount, unit, expirationDate];
         	var insert_property_success = await myQuery(insert_property_sql, insert_property_param);
         	if(insert_property_success){
-				var insert_log_sql = "insert into payment_log_"+militaryUnit+" values (?,?,?,?,?,?,?,?,?,?,?,now(), now());";
+				var insert_log_sql = "insert into paymentLog_"+militaryUnit+" values (?,?,?,?,?,?,?,?,?,?,?,now(), now());";
 				var id = property_id+"-1";
             	var insert_log_param = [id, "수입",name, amount,unit, target, storagePlace, expirationDate,confirmor_id, property_id, 1];
             	var insert_log_success = await myQuery(insert_log_sql, insert_log_param);
@@ -271,11 +271,11 @@ router.post('/write', async function(req, res, next) {
 					}
 					else{
 						var storagePlace_id = property_id+"-"+storagePlace;
-						var select_storagePlace_sql = "select * from storage_place_"+militaryUnit+" where id = ?;";
+						var select_storagePlace_sql = "select * from storagePlace_"+militaryUnit+" where id = ?;";
 						var select_storagePlace_param = storagePlace_id;
 						[select_storagePlace_result] = await con.query(select_storagePlace_sql, select_storagePlace_param);
 						if(select_storagePlace_result.length==0){
-							var insert_storagePlace_sql = "insert into storage_place_"+militaryUnit+" values (?,?,?,?);";
+							var insert_storagePlace_sql = "insert into storagePlace_"+militaryUnit+" values (?,?,?,?);";
 							var insert_storagePlace_param = [storagePlace_id, property_id, storagePlace, amount];
 							var insert_storagePlace_success = await myQuery(insert_storagePlace_sql, insert_storagePlace_param);
 							if(insert_storagePlace_success){
@@ -297,7 +297,7 @@ router.post('/write', async function(req, res, next) {
 								final_getsu = origin_getsu-amount;
 							}
 							if(final_getsu==0){
-								var delete_storagePlace_sql = "delete from storage_place_"+militaryUnit+" where id = ?;";
+								var delete_storagePlace_sql = "delete from storagePlace_"+militaryUnit+" where id = ?;";
                                 var delete_storagePlace_param = storagePlace_id;
                                 var delete_storagePlace_success = await myQuery(delete_storagePlace_sql, delete_storagePlace_param);
                                 if(delete_storagePlace_success){
@@ -311,7 +311,7 @@ router.post('/write', async function(req, res, next) {
                                 }
 							}
 							else{
-								var update_storagePlace_sql = "update storage_place_"+militaryUnit+" set amount = ? where id = ?;";
+								var update_storagePlace_sql = "update storagePlace_"+militaryUnit+" set amount = ? where id = ?;";
                             	var update_storagePlace_param = [final_getsu, storagePlace_id];
                             	var update_storagePlace_success = await myQuery(update_storagePlace_sql, update_storagePlace_param);
                             	if(update_storagePlace_success){
@@ -337,7 +337,7 @@ router.post('/write', async function(req, res, next) {
 						var user_createdAt = select_user_result[0].createdAt;
 						var user_updatedAt = select_user_result[0].updatedAt;
 						var user_data = {id:confirmor_id, name:user_name, email:user_email, phoneNumber:user_phoneNumber,serviceNumber:user_serviceNumber, rank:user_mil_rank, enlistmentDate:user_enlistmentDate, dischargeDate:user_dischargeDate, militaryUnit:user_militaryUnit, createdAt:user_createdAt, updatedAt:user_updatedAt };
-						var select_log_sql = "select createdAt, updatedAt from payment_log_"+militaryUnit+" where id = ?;";
+						var select_log_sql = "select createdAt, updatedAt from paymentLog_"+militaryUnit+" where id = ?;";
     					var select_log_param = id;
 						const [select_log_result, select_log_field] = await con.query(select_log_sql,select_log_param);
 						if(select_user_result.length==0){
@@ -407,7 +407,7 @@ router.post('/write', async function(req, res, next) {
 			}
 		}
 		//이까지 살아왔단 말은 property db에 업데이트 완료했단말 => 로그 기록 남기자 
-		var insert_log_sql = "insert into payment_log_"+militaryUnit+" values (?,?,?,?,?,?,?,?,?,?,?,now(), now());";
+		var insert_log_sql = "insert into paymentLog_"+militaryUnit+" values (?,?,?,?,?,?,?,?,?,?,?,now(), now());";
         var insert_log_param = [id, receiptPayment, name, amount,unit, target, storagePlace, expirationDate,confirmor_id, property_id, next_property_log_num];
         var insert_log_success = await myQuery(insert_log_sql, insert_log_param);
 		if(insert_log_success){
@@ -420,11 +420,11 @@ router.post('/write', async function(req, res, next) {
             else{
 
 				var storagePlace_id = property_id+"-"+storagePlace;
-                var select_storagePlace_sql = "select * from storage_place_"+militaryUnit+" where id = ?;";
+                var select_storagePlace_sql = "select * from storagePlace_"+militaryUnit+" where id = ?;";
                 var select_storagePlace_param = storagePlace_id;
                 [select_storagePlace_result] = await con.query(select_storagePlace_sql, select_storagePlace_param);
                 if(select_storagePlace_result.length==0){
-                	var insert_storagePlace_sql = "insert into storage_place_"+militaryUnit+" values (?,?,?,?);";
+                	var insert_storagePlace_sql = "insert into storagePlace_"+militaryUnit+" values (?,?,?,?);";
                     var insert_storagePlace_param = [storagePlace_id, property_id, storagePlace, amount];
                     var insert_storagePlace_success = await myQuery(insert_storagePlace_sql, insert_storagePlace_param);
                     if(insert_storagePlace_success){
@@ -446,7 +446,7 @@ router.post('/write', async function(req, res, next) {
                         final_getsu = origin_getsu-amount;
                     }
 					if(final_getsu==0){
-                    	var delete_storagePlace_sql = "delete from storage_place_"+militaryUnit+" where id = ?;";
+                    	var delete_storagePlace_sql = "delete from storagePlace_"+militaryUnit+" where id = ?;";
                         var delete_storagePlace_param = storagePlace_id;
                         var delete_storagePlace_success = await myQuery(delete_storagePlace_sql, delete_storagePlace_param);
                         if(delete_storagePlace_success){
@@ -460,7 +460,7 @@ router.post('/write', async function(req, res, next) {
                         }
                     }
                     else{
-                        var update_storagePlace_sql = "update storage_place_"+militaryUnit+" set amount = ? where id = ?;";
+                        var update_storagePlace_sql = "update storagePlace_"+militaryUnit+" set amount = ? where id = ?;";
                         var update_storagePlace_param = [final_getsu, storagePlace_id];
                         var update_storagePlace_success = await myQuery(update_storagePlace_sql, update_storagePlace_param);
                         if(update_storagePlace_success){
@@ -485,7 +485,7 @@ router.post('/write', async function(req, res, next) {
                 var user_createdAt = select_user_result[0].createdAt;
                 var user_updatedAt = select_user_result[0].updatedAt;
                 var user_data = {id:confirmor_id, name:user_name, email:user_email, phoneNumber:user_phoneNumber,serviceNumber:user_serviceNumber, rank:user_mil_rank, enlistmentDate:user_enlistmentDate, dischargeDate:user_dischargeDate, militaryUnit:user_militaryUnit, createdAt:user_createdAt, updatedAt:user_updatedAt };
-                var select_log_sql = "select createdAt, updatedAt from payment_log_"+militaryUnit+" where id = ?;";
+                var select_log_sql = "select createdAt, updatedAt from paymentLog_"+militaryUnit+" where id = ?;";
                 var select_log_param = id;
                 const [select_log_result, select_log_field] = await con.query(select_log_sql,select_log_param);
                 if(select_user_result.length==0){
