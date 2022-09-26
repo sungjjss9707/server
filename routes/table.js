@@ -20,7 +20,7 @@ var propertyMake = async function(militaryUnit){
 var paymentLogMake = async function(militaryUnit){
     try{
         var con = await db.createConnection(inform);
-		var sql = "create table paymentLog_"+militaryUnit+"( id varchar(100), receiptPayment varchar(20), name varchar(100), amount int,  unit varchar(20), target varchar(100), storagePlace varchar(100), expirationDate varchar(100), confirmor_id varchar(100), property_id varchar(100), property_log_num int, createdAt datetime, updatedAt datetime, primary key(id) );"
+		var sql = "create table paymentLog_"+militaryUnit+" ( id varchar(100), receiptPayment varchar(20), confirmor_id varchar(100), target varchar(100), YearMonthDate varchar(20), log_num int, property_id_arr varchar(5000), storagePlace_arr varchar(1000), amount_arr varchar(1000), unit_arr varchar(1000),createdAt datetime, updatedAt datetime, primary key(id) );"
         const [row, field] = await con.query(sql);
         return {success:true};
     }catch(error){
@@ -32,7 +32,7 @@ var paymentLogMake = async function(militaryUnit){
 var storagePlaceMake = async function(militaryUnit){
     try{
         var con = await db.createConnection(inform);
-        var sql = "create table storagePlace_"+militaryUnit+"( id varchar(150), property_id varchar(100), name varchar(100), amount int, primary key(id) );"
+        var sql = "create table storagePlace_"+militaryUnit+" ( id varchar(150), property_id varchar(100), name varchar(100), amount int,unit varchar(20), primary key(id) );"
         const [row, field] = await con.query(sql);
         return {success:true};
     }catch(error){

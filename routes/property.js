@@ -76,8 +76,8 @@ router.get('/show', async function(req, res, next) {
          	   amountByPlace.push({storagePlace:select_amountByPlace_result[k].name, amount:select_amountByPlace_result[k].amount});
         	}
 
-        	select_log_sql = "select id from paymentLog_"+militaryUnit+" where property_id = ? order by property_log_num;";
-        	select_log_param = id;
+        	select_log_sql = "select id from paymentLog_"+militaryUnit+" where property_id_arr like ?;";
+        	select_log_param = "%"+id+"%";
 			[select_log_result, select_log_field] = await con.query(select_log_sql,select_log_param);
 			log_arr = [];
 			for(let k=0; k<select_log_result.length; ++k){
@@ -143,8 +143,8 @@ router.get('/show/:id', async function(req, res, next) {
 		for(let i=0; i<select_amountByPlace_result.length; ++i){
 			amountByPlace.push({storagePlace:select_amountByPlace_result[i].name, amount:select_amountByPlace_result[i].amount});
 		}
-		var select_log_sql = "select id from paymentLog_"+militaryUnit+" where property_id = ? order by property_log_num;";
-    	var select_log_param = id;
+		var select_log_sql = "select id from paymentLog_"+militaryUnit+" where property_id_arr like ?;";
+        var select_log_param = "%"+id+"%";
     	const [select_log_result, select_log_field] = await con.query(select_log_sql,select_log_param);
         //console.log(created_time+" "+updated_time);
 		if(select_log_result.length==0){	//재산이 있다면 로그가 없을수가 없음 절대로 
